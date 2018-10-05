@@ -1,0 +1,173 @@
+.zabacus-footer {
+  padding-top: 40px;
+  padding-bottom: 40px;
+  margin-top: 30px;
+  color: #767676;
+  text-align: center;
+  border-top: 1px solid #e5e5e5;
+}
+.zabacus-footer-links {
+  padding-left: 0;
+  margin-top: 20px;
+}
+.vertical-align {
+  display: flex;
+  align-items: center;
+}
+.table tbody>tr>td {
+  vertical-align: middle;
+}
+
+.member-link .avatar {
+  float: left;
+  margin-top: 1px;
+  margin-right: 10px;
+}
+
+.member-name {
+  display: block;
+}
+
+.event-name {
+  display: block;
+  font-size: large;
+}
+
+.member-info {
+  display: block;
+  float: right;
+}
+
+.status {
+  font-size: large;
+}
+
+.list-group-item .owner-marker {
+  border-style: solid;
+  border-width: 1px;
+  border-radius: 4px;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  padding-left: 3px;
+  padding-right: 3px;
+  margin-top: 6.5px;
+  color: #767676;
+}
+
+.list-group-item .surplus {
+  border-style: none;
+  border-width: 1px;
+  border-radius: 4px;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  padding-left: 3px;
+  padding-right: 3px;
+  margin-top: 6.5px;
+  color: #17D117;
+}
+
+.list-group-item .deficit {
+  border-style: none;
+  border-width: 1px;
+  border-radius: 4px;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  padding-left: 3px;
+  padding-right: 3px;
+  margin-top: 6.5px;
+  color: #F71E5B;
+}
+
+.dropdown-wide {
+  padding: 17px;
+  min-width: 400px;
+  min-height: 300px;
+}
+
+.dropdown-wide .form-control {
+  margin-bottom: 17px;
+}
+
+.nav-tabs {
+  margin-bottom: 17px;
+}
+
+.h1, h1 {
+  margin-top: 10px;
+}
+
+.breadcrumb {
+  margin-bottom: 0px;
+}
+
+@media (min-width: 1200px) {
+  .container .container-body {
+    width: 1140px;
+  }
+}
+
+a {
+  cursor: pointer;
+}
+
+.caret.caret-reversed {
+    border-top-width: 0;
+    border-bottom: 4px solid #000000;
+}
+
+.in-form-margin {
+  margin-bottom: 17px;
+}
+
+.in-form-margin.first-row {
+  margin-top: 17px;
+}
+
+div.input-group.debt-weight {
+  width: 190px;
+}
+
+div.container.new-item {
+  max-width: 750px;
+}
+
+input.debt-weight {
+  text-align: center;
+}
+
+textarea.form-control {
+  resize: none;
+}
+
+button.calc {
+  width: 100%;
+}
+
+div.calc {
+  margin-bottom: 15px;
+}
+
+input.calc {
+  text-align: right;
+}
+
+div.container-form {
+  max-width: 350px;
+}
+
+.navbar-no-margin {
+  margin-bottom: 0px;
+}
+
+.breadcrumb {
+  margin-top: 20px;
+}
+
+.navbar-brand {
+  font-family: Trajan Pro, Trajan, Lithos Pro Regular, Palatino, Palatino Linotype, Georgia;
+}
+
+.sign-btn {
+  width: 76px;
+  margin-right: 15px;
+}
