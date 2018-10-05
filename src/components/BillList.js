@@ -1,8 +1,9 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import moment from 'moment';
 import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
-import { Redirect } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import { hasToken } from './UIRoot';
 
 const LIST_BILLS = gql`
@@ -21,15 +22,35 @@ export const displayLongDate = (date) => {
   return moment(date).format("YYYY-MM-DD HH:mm");
 };
 
+export const displayMediumDate = (date) => {
+  return moment(date).format("YYYY-MM-DD");
+}
+
+const EmptyRow = ({ disp }) => (
+  <tr>
+    <td>
+      <strong className="event-name">{disp}</strong>
+    </td>
+    <td></td>
+    <td></td>
+  </tr>
+);
+
+EmptyRow.propTypes = {
+  disp: PropTypes.string.isRequired
+};
+
 const Bills = (props) => (
   <Query query={LIST_BILLS}>
   {({ loading, error, data }) => {
-    if (loading) return <tr><td>Loading...</td><td></td><td></td></tr>;
-    if (error) return <tr><td>Error...</td><td></td><td></td></tr>;
+    if (loading) return <EmptyRow disp="Loading..."/>;
+    if (error) return <EmptyRow disp="Error :("/>;
     return data.listBills.map(bill => (
       <tr key={bill.id}>
         <td>
-          <strong className="event-name">{bill.name}</strong>
+          <Link to={"/bills/details/" + bill.id}>
+            <strong className="event-name">{bill.name}</strong>
+          </Link>
           Created by {bill.createdBy.firstName}
         </td>
         <td>
@@ -44,7 +65,7 @@ const Bills = (props) => (
   </Query>
 );
 
-export const BillList = (props) => {
+export const BillList = () => {
   if (!hasToken()) {
     return <Redirect to="/" />;
   }
@@ -52,7 +73,7 @@ export const BillList = (props) => {
     <div className="container container-body">
       <div className="row">
         <ol className="breadcrumb">
-          <li className="active">"::el.statusName"</li>
+          <li className="active">"Status: not implemented"</li>
         </ol>
       </div>
 

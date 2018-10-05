@@ -4,6 +4,7 @@ import { UIRootNav } from './UIRootNav';
 import { Home } from './Home';
 import { SignIn, SignUp } from './SignIn';
 import { BillList } from './BillList';
+import { BillView } from './BillView';
 
 export const hasToken = () => (localStorage.getItem('token') != null);
 export const setToken = (jwt) => {
@@ -44,11 +45,11 @@ export const UIRoot = () => (
           }
         } />
         <Route path="/bills/list" component={BillList} />
+        <Route path="/bills/details/:billId" component={BillView} />
         {/*
         <Route path="/welcome" component={Welcome} />
         <Route path="/error" component={Err} />
         <Route path="/user/:id" component={User} />
-        <Route path="/bills/details/:billId" component={BillView} />
         <Route path="/bills/items/:itemId" component={ItemView} />
         */}
       </Switch>

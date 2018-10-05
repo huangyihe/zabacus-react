@@ -28,6 +28,10 @@
   display: block;
 }
 
+.amount {
+  display: block;
+}
+
 .event-name {
   display: block;
   font-size: large;
