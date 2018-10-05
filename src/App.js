@@ -6,7 +6,7 @@ import { createHttpLink } from 'apollo-link-http';
 import { setContext } from 'apollo-link-context';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 
-import { UIRootContainer } from './containers/UIRootContainer';
+import { UIRoot } from './components/UIRoot';
 
 const httpLink = createHttpLink({
   uri: 'http://localhost:8000/graphql/',
@@ -33,7 +33,7 @@ class ZAbacus extends Component {
     return (
       <ApolloProvider client={client} >
         <Router>
-          <UIRootContainer />
+          <UIRoot />
         </Router>
       </ApolloProvider>
     );

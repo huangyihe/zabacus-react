@@ -1,7 +1,9 @@
 import React from 'react';
+import moment from 'moment';
 import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
-import moment from 'moment';
+import { Redirect } from 'react-router-dom';
+import { hasToken } from './UIRoot';
 
 const LIST_BILLS = gql`
 {
@@ -40,9 +42,12 @@ const Bills = (props) => (
     ));
   }}
   </Query>
-)
+);
 
 export const BillList = (props) => {
+  if (!hasToken()) {
+    return <Redirect to="/" />;
+  }
   return (
     <div className="container container-body">
       <div className="row">
