@@ -15,7 +15,6 @@ export class UIRoot extends React.Component {
       <UIRootNav rootControl={rctl} />
 
       <Route exact path="/" render={() => {
-        console.log(rctl.userIsAuthenticated());
         if (rctl.userIsAuthenticated()) {
           return <Redirect to="/bills/list" />;
         } else {
