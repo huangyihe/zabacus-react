@@ -25,11 +25,20 @@ query billDetail($id: ID!) {
     items {
       id
       name
-      createdBy {firstName}
+      createdBy {
+        id
+        firstName
+      }
       total
-      paidBy {firstName}
+      paidBy {
+        id
+        firstName
+      }
       assignments {
-        user {firstName}
+        user {
+          id
+          firstName
+        }
         amount
       }
     }

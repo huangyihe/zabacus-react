@@ -6,6 +6,7 @@ import { Link, Redirect } from 'react-router-dom';
 import { hasToken } from './UIRoot';
 import { ItemList } from './BillItemList';
 import { BillDetailsTab } from './BillDetails';
+import { SettlementTab } from './Settlement';
 
 const PathIndicator = (props) => (
   <div className="row">
@@ -90,11 +91,13 @@ export class BillView extends React.Component {
     if (!hasToken()) return <Redirect to="/" />;
   
     const billId = this.props.match.params.billId;
-    let viewToShow = <ItemList billId={billId}/>;
+    let viewToShow;
     if (this.state.activeTabName === 'details') {
       viewToShow = <BillDetailsTab billId={billId} />
     } else if (this.state.activeTabName === 'items') {
       viewToShow = <ItemList billId={billId}/>;
+    } else {
+      viewToShow = <SettlementTab billId={billId} />;
     }
 
     return (

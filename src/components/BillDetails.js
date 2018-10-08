@@ -5,7 +5,7 @@ import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
 import { displayLongDate } from './BillList';
 
-const avatarLink = (email) => {
+export const avatarLink = (email) => {
   const hashEmail = email ? email : "";
   return "https://www.gravatar.com/avatar/" + md5(hashEmail) + "?d=identicon";
 }
@@ -57,13 +57,13 @@ const MemberList = ({ billId }) => (
         }
         return (
           <li key={member.id} className="list-group-item clearfix">
-            <a className="member-link pull-left" href="#">
+            <span className="member-link pull-left" href="#">
               <img className="avatar" alt="avatar" height="40" width="40" src={avatarLink(member.email)} />
               <div className="member-info">
                 <strong className="member-name">{member.firstName + " " + member.lastName}</strong>
                 {member.email + " (" + member.username + ")"}
               </div>
-            </a>
+            </span>
             {ownerTag}
           </li>
         );

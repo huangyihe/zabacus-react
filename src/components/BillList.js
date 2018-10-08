@@ -12,7 +12,10 @@ const LIST_BILLS = gql`
     id
     name
     date
-    createdBy {firstName}
+    createdBy {
+      id
+      firstName
+    }
     status
   }
 }
