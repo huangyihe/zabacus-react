@@ -77,7 +77,7 @@ QueryItemList.propTypes = {
   billId: PropTypes.string.isRequired
 };
 
-export const ItemListTab = ({ billId }) => (
+export const ItemList = ({ billId }) => (
   <div>
     <div className="col-md-6">
       {/* the actual item list to populate */}
@@ -93,6 +93,6 @@ export const ItemListTab = ({ billId }) => (
   </div>
 );
 
-ItemListTab.propTypes = {
+ItemList.propTypes = {
   billId: PropTypes.string.isRequired
 };

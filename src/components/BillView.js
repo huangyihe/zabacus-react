@@ -4,9 +4,9 @@ import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
 import { Link, Redirect } from 'react-router-dom';
 import { hasToken } from './UIRoot';
-import { ItemListTab } from './BillItemList';
 import { BillDetailsTab } from './BillDetails';
 import { SettlementTab } from './Settlement';
+import { ItemsTab } from './ItemsTab';
 
 const PathIndicator = (props) => (
   <div className="row">
@@ -95,7 +95,7 @@ export class BillView extends React.Component {
     if (this.state.activeTabName === 'details') {
       viewToShow = <BillDetailsTab billId={billId} />
     } else if (this.state.activeTabName === 'items') {
-      viewToShow = <ItemListTab billId={billId} />;
+      viewToShow = <ItemsTab billId={billId} />;
     } else {
       viewToShow = <SettlementTab billId={billId} />;
     }

@@ -16,7 +16,7 @@ const EmptyLi = ({ disp }) => (
   </li>
 );
 
-const GET_MEMBERS = gql`
+export const GET_MEMBERS = gql`
 query getMembers($id: ID!) {
   showBill(bid: $id) {
     id
@@ -33,6 +33,20 @@ query getMembers($id: ID!) {
   }
 }
 `;
+
+export const MemberBlock = ({ member }) => (
+  <span className="member-link pull-left" href="#">
+    <img className="avatar" alt="avatar" height="40" width="40" src={avatarLink(member.email)} />
+    <div className="member-info">
+      <strong className="member-name">{member.firstName + " " + member.lastName}</strong>
+      {member.email + " (" + member.username + ")"}
+    </div>
+  </span>
+);
+
+MemberBlock.propTypes = {
+  member: PropTypes.object.isRequired
+};
 
 const MemberList = ({ billId }) => (
   <Query query={GET_MEMBERS} variables={{ id: billId }}>
@@ -57,13 +71,7 @@ const MemberList = ({ billId }) => (
         }
         return (
           <li key={member.id} className="list-group-item clearfix">
-            <span className="member-link pull-left" href="#">
-              <img className="avatar" alt="avatar" height="40" width="40" src={avatarLink(member.email)} />
-              <div className="member-info">
-                <strong className="member-name">{member.firstName + " " + member.lastName}</strong>
-                {member.email + " (" + member.username + ")"}
-              </div>
-            </span>
+            <MemberBlock member={member} />
             {ownerTag}
           </li>
         );
@@ -90,7 +98,7 @@ export const BillDetailsTab = ({ billId }) => (
       const bill = data.showBill;
       if (bill == null) return <h1>Error :(</h1>;
       return (
-        <div>
+        <div className="row-fluid">
           <div className="col-md-6">
             <div className="panel panel-default">
               <div className="panel-heading">Members</div>

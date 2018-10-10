@@ -227,7 +227,7 @@ const SettlementLists = ({ people, settlement }) => (
 );
 
 const DisplaySettlementTab = ({ people, settlement }) => (
-  <div>
+  <div className="row-fluid">
     <SettlementLists people={people} settlement={settlement} />
     <div className="row">
       <div className="col-xs-12">
@@ -269,7 +269,7 @@ query getAll($id: ID!) {
 `;
 
 const BlankTab = ({ disp }) => (
-  <div className="row">
+  <div className="row-fluid">
     <div className="col-xs-12">
     {disp}
     </div>
