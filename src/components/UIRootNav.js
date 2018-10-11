@@ -1,9 +1,10 @@
 import React from 'react';
 import gql from 'graphql-tag';
-import { Query } from 'react-apollo';
+import { Query, Mutation } from 'react-apollo';
 import { Link, Redirect } from 'react-router-dom';
 import { hasToken, resetToken } from './UIRoot';
 import LinkButton from './LinkButton';
+import { LIST_BILLS } from './BillList';
 
 const GET_ME = gql`
 query {
@@ -30,6 +31,76 @@ const UserNameDisplay = () => (
   }
   </Query>
 );
+
+const NEW_BILL = gql`
+mutation newBill($name: String!, $desc: String!) {
+  createBill(name: $name, desc: $desc) {
+    bill {
+      id
+    }
+  }
+}
+`;
+
+const NewBillForm = () => {
+  let billName;
+  let billDesc;
+
+  const genParams = (name, desc) => {
+    if (name === "" || desc === "") {
+      console.log("validation filed, mutation not generated");
+      return null;
+    }
+    return {
+      name: name,
+      desc: desc
+    };
+  }
+
+  return (
+    <Mutation mutation={NEW_BILL} refetchQueries={({ loading, error, data }) => {
+      if (loading || error || data.createBill == null) {
+        return [];
+      }
+      return [{ query: LIST_BILLS }];
+    }}>
+    {(newBill, { loading, error, data }) => {
+      var buttonDisabled = false;
+      var errorTag = null;
+      if (loading) {
+        buttonDisabled = true;
+      }
+      if (error) {
+        errorTag = <span>Error :(</span>;
+      }
+      return (
+        <form className="form" onSubmit={e => {
+            e.preventDefault();
+            const params = genParams(billName.value, billDesc.value);
+            if (params != null) {
+              newBill({ variables: params });
+            }
+          }}
+        >
+          <input type="text" className="form-control"
+            placeholder="Give me a name?" ref={node => {billName = node;}} />
+          <textarea
+            className="form-control input-medium"
+            rows="7" ref={node => {billDesc = node;}}
+            placeholder="Tell me more about it!"
+          >
+          </textarea>
+          {errorTag}
+          <button type="submit" disabled={buttonDisabled}
+            className="btn btn-primary btn-lg pull-right">
+            Create
+          </button>
+        </form>
+      );
+    }}
+    </Mutation>
+  );
+};
 
 export const UIRootNav = () => {
   let navRight;
@@ -84,16 +155,7 @@ export const UIRootNav = () => {
             <span className="caret"></span>
           </a>
           <div className="dropdown-menu dropdown-wide">
-            <form className="form">
-              <input type="text" className="form-control" placeholder="Give me a name?" />
-              <textarea
-                className="form-control input-medium"
-                rows="7"
-                placeholder="Tell me more about it!"
-              >
-              </textarea>
-              <button type="button" className="btn btn-primary btn-lg pull-right">Create</button>
-            </form>
+            <NewBillForm />
           </div>
         </li>
       </ul>

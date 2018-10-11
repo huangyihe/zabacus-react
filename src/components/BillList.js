@@ -6,7 +6,7 @@ import { Link, Redirect } from 'react-router-dom';
 import { hasToken } from './UIRoot';
 import { displayStatus, displayLongDate } from '../utils/format';
 
-const LIST_BILLS = gql`
+export const LIST_BILLS = gql`
 {
   listBills {
     id
