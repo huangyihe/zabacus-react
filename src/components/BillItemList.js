@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import gql from 'graphql-tag';
-import { Query } from 'react-apollo';
-import { displayMediumDate } from './BillList';
+import { Query, Mutation } from 'react-apollo';
+import { currencyFormat, displayMediumDate } from '../utils/format';
 
 const EmptyRow = ({ disp }) => (
   <tr className="clearfix">
@@ -18,7 +18,7 @@ EmptyRow.propTypes = {
   disp: PropTypes.string.isRequired
 };
 
-const GET_ITEMS = gql`
+export const GET_ITEMS = gql`
 query billDetail($id: ID!) {
   showBill(bid: $id) {
     id
@@ -46,6 +46,16 @@ query billDetail($id: ID!) {
 }
 `;
 
+const DELETE_ITEM = gql`
+mutation deleteItem($id: ID!) {
+  deleteBillItem(iid: $id) {
+    bill {
+      id
+    }
+  }
+}
+`;
+
 const QueryItemList = ({ billId }) => (
   <Query query={GET_ITEMS} variables={{ id: billId }}>
     {({ loading, error, data }) => {
@@ -60,11 +70,37 @@ const QueryItemList = ({ billId }) => (
               Created by {item.createdBy.firstName} on {displayMediumDate(item.date)}
             </td>
             <td>
-              <strong className="amount">{item.total}</strong>
+              <strong className="amount">{currencyFormat("$", item.total)}</strong>
               Paid by {item.paidBy.firstName}
             </td>
             <td>
-              <button className="btn btn-danger pull-right">Delete</button>
+              <Mutation mutation={DELETE_ITEM}
+                refetchQueries={({ loading, error, data }) => {
+                  if (loading || error || data.deleteBillItem == null) {
+                    return [];
+                  }
+                  return [{
+                    query: GET_ITEMS,
+                    variables: {id: billId}
+                  }];
+                }}>
+                {(deleteItem, { loading, error, data }) =>{
+                  var buttonDisabled = false;
+                  if (loading) {
+                    buttonDisabled = true;
+                  }
+                  return (
+                    <button className="btn btn-danger pull-right"
+                      onClick={e => {
+                        deleteItem({ variables: { id: item.id } });
+                      }}
+                      disabled={buttonDisabled}
+                    >
+                      Delete
+                    </button>
+                  );
+                }}
+              </Mutation>
             </td>
           </tr>
         )

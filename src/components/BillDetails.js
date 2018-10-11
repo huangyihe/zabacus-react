@@ -3,7 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
-import { displayLongDate } from './BillList';
+import { displayLongDate } from '../utils/format';
 
 export const avatarLink = (email) => {
   const hashEmail = email ? email : "";

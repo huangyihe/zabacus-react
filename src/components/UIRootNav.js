@@ -68,7 +68,7 @@ export const UIRootNav = () => {
             aria-haspopup="true"
             aria-expanded="false"
           >
-            List Events
+            List Bills
             <span className="caret"></span>
           </a>
           <ul className="dropdown-menu">
@@ -80,7 +80,7 @@ export const UIRootNav = () => {
         {/* new events drop down */}
         <li className="dropdown" id="menuLogin">
           <a className="dropdown-toggle" href="#" data-toggle="dropdown">
-            New Event
+            New Bill
             <span className="caret"></span>
           </a>
           <div className="dropdown-menu dropdown-wide">

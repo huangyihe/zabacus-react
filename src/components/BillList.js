@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
 import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
 import { Link, Redirect } from 'react-router-dom';
 import { hasToken } from './UIRoot';
+import { displayStatus, displayLongDate } from '../utils/format';
 
 const LIST_BILLS = gql`
 {
@@ -20,14 +20,6 @@ const LIST_BILLS = gql`
   }
 }
 `;
-
-export const displayLongDate = (date) => {
-  return moment(date).format("YYYY-MM-DD HH:mm");
-};
-
-export const displayMediumDate = (date) => {
-  return moment(date).format("YYYY-MM-DD");
-}
 
 const EmptyRow = ({ disp }) => (
   <tr>
@@ -60,7 +52,7 @@ const Bills = (props) => (
           {displayLongDate(bill.date)}
         </td>
         <td>{/* status or amount? */}
-          <strong className="status">{bill.status}</strong>
+          <strong className="status">{displayStatus(bill.status)}</strong>
         </td>
       </tr>
     ));
@@ -76,7 +68,7 @@ export const BillList = () => {
     <div className="container container-body">
       <div className="row">
         <ol className="breadcrumb">
-          <li className="active">"Status: not implemented"</li>
+          <li className="active">Status: not implemented</li>
         </ol>
       </div>
 

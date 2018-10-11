@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { MemberBlock } from './BillDetails';
 import gql from 'graphql-tag';
 import { Query, Mutation } from 'react-apollo';
+import { GET_ITEMS } from './BillItemList';
 
 const moveFromAToB = (t, A, B) => {
   var newA = A.slice(0);
@@ -58,20 +59,6 @@ mutation addItem($bid: ID!, $name: String!, $desc: String!, $payer: ID!, $total:
   addBillItem(bid: $bid, iname: $name, idesc: $desc, payer: $payer, total: $total, weights: $wei) {
     bill {
       id
-      items {
-        id
-        name
-        date
-        createdBy {
-          id
-          firstName
-        }
-        paidBy {
-          id
-          firstName
-        }
-        total
-      }
     }
   }
 }
@@ -135,6 +122,19 @@ class NewItemFormDisplay extends React.Component {
 
   payerReset() {
     this.setState({ payer: this.state.me });
+  }
+
+  resetAll() {
+    this.setState({
+      total: 0.00,
+      totalText: "0.00",
+      name: "",
+      desc: "",
+      mode: "custom",
+      payer: this.props.me,
+      members: this.props.members,
+      involved: []
+    });
   }
   
   get getTotal() {
@@ -313,10 +313,47 @@ class NewItemFormDisplay extends React.Component {
         />
         <div className="row-fluid clearfix in-form-margin">
           <div className="col-md-12">
-            <button className="btn btn-primary btn-lg pull-right"
-              onClick={e => this.generateQueryParameters()}>
-              Create Item
-            </button>
+            <Mutation mutation={ADD_ITEM}
+              refetchQueries={({ loading, error, data }) => {
+                if (loading || error) {
+                  return [];
+                }
+                if (data.addBillItem == null) return [];
+                return [{
+                  query: GET_ITEMS,
+                  variables: { id: this.props.billId }
+                }];
+              }} >
+              {(addItem, { loading, error, data }) => {
+                var errorTag = null;
+                var buttonDisabled = false;
+
+                if (loading) {
+                  buttonDisabled = true;
+                }
+                if (error) {
+                  errorTag = <span>Query error :(</span>;
+                }
+
+                return (
+                  <div>
+                    <button className="btn btn-primary btn-lg pull-right"
+                      disabled={buttonDisabled}
+                      onClick={e => {
+                        const params = this.generateQueryParameters();
+                        if (params != null) {
+                          addItem({ variables: params });
+                        } else {
+                          console.log("form not complete, query not generated");
+                        }
+                      }}>
+                      Create Item
+                    </button>
+                    {errorTag}
+                  </div>
+                );
+              }}
+            </Mutation>
           </div>
         </div>
       </div>

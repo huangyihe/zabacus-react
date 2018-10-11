@@ -2,7 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
-import { avatarLink } from './BillDetails';
+import { MemberBlock } from './BillDetails';
+import { currencyFormat } from '../utils/format';
 
 const binarySearch = (sortedArray, target, compare) => {
   var left = 0;
@@ -102,8 +103,8 @@ const computeSettlement = (members, items) => {
     sum += debt.amount;
     return null;
   });
-  if (sum !== 0) {
-    console.error("database invariant violated");
+  if (Math.abs(sum) >= 0.01) {
+    console.error(`database invariant violated, err=${sum}`);
     console.log(perUserDebt);
   }
 
@@ -115,8 +116,9 @@ const computeSettlement = (members, items) => {
   while (left !== right) {
     let maxOwed = perUserDebt[left];
     let maxBorrow = perUserDebt[right];
-    if (((left + 1) === right) && ((maxOwed.amount + maxBorrow.amount) !== 0)) {
-      console.error("invariant!!!");
+    if (((left + 1) === right) && (Math.abs(maxOwed.amount + maxBorrow.amount) >= 0.01)) {
+      const err = maxOwed.amount + maxBorrow.amount;
+      console.error(`invariant!!!, err=${err}`);
     }
     if (maxOwed.amount + maxBorrow.amount > 0) {
       settlement[`${maxOwed.userId},${maxBorrow.userId}`] = maxOwed.amount;
@@ -171,8 +173,6 @@ const getPerspective = (settlement, meId) => {
   return mySettlement;
 };
 
-const displayName = (user) => `${user.firstName} ${user.lastName}`;
-const displayUname = (user) => `${user.email} (${user.username})`;
 const findById = (people, id) => {
   for (var i = 0; i < people.length; i++) {
     if (people[i].id === id) {
@@ -185,21 +185,12 @@ const findById = (people, id) => {
 const PaymentList = ({ people, payments }) => payments.map(payment => {
   const user = findById(people, payment.other);
   const amountClass = payment.amount <= 0 ? "surplus" : "deficit";
-  const name = displayName(user);
-  const usernameEmail = displayUname(user);
-  const imgLink = avatarLink(user.email);
 
   return (
     <li key={amountClass + user.id} className="list-group-item clearfix">
-      <span className="member-link pull-left">
-        <img className="avatar" alt="avatar" height="40" width="40" src={imgLink} />
-        <div className="member-info">
-          <strong className="member-name">{name}</strong>
-          {usernameEmail}
-        </div>
-      </span>
+      <MemberBlock member={user} />
       <span className={"pull-right " + amountClass}>
-        {payment.amount}
+        {currencyFormat("$", payment.amount)}
       </span>
     </li>
   );

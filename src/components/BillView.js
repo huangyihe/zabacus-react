@@ -60,7 +60,7 @@ BillNavBar.propTypes = {
   activateTab: PropTypes.func.isRequired
 };
 
-const GET_BILL = gql`
+const GET_BILL_SUMMARY = gql`
 query billDetail($id: ID!) {
   showBill(bid: $id) {
     id
@@ -101,7 +101,7 @@ export class BillView extends React.Component {
     }
 
     return (
-      <Query query={GET_BILL} variables={{ id: billId }}>
+      <Query query={GET_BILL_SUMMARY} variables={{ id: billId }}>
         {({ loading, error, data }) => {
           if (loading) return <p>Loading...</p>;
           if (error) return <p>Error :(</p>;
