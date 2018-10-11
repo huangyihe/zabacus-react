@@ -16,7 +16,7 @@ const EmptyLi = ({ disp }) => (
   </li>
 );
 
-export const GET_MEMBERS = gql`
+const GET_MEMBERS = gql`
 query getMembers($id: ID!) {
   showBill(bid: $id) {
     id
@@ -39,7 +39,7 @@ export const MemberBlock = ({ member }) => (
     <img className="avatar" alt="avatar" height="40" width="40" src={avatarLink(member.email)} />
     <div className="member-info">
       <strong className="member-name">{member.firstName + " " + member.lastName}</strong>
-      {member.email + " (" + member.username + ")"}
+      {`(${member.username})`}
     </div>
   </span>
 );
