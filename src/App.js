@@ -8,8 +8,15 @@ import { InMemoryCache } from 'apollo-cache-inmemory';
 
 import { UIRoot } from './components/UIRoot';
 
+let serverHost;
+if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
+  serverHost = 'http://localhost:8000';
+} else {
+  serverHost = 'https://api.zabacus.org';
+}
+
 const httpLink = createHttpLink({
-  uri: 'http://localhost:8000/graphql/',
+  uri: `${serverHost}/graphql/`,
 });
 
 const authLink = setContext((_, { headers }) => {
