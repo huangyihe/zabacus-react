@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import gql from 'graphql-tag';
 import { Query, Mutation } from 'react-apollo';
-import { currencyFormat, displayMediumDate } from '../utils/format';
+import { currencyFormat, displayShortDate } from '../utils/format';
 
 const EmptyRow = ({ disp }) => (
   <tr className="clearfix">
@@ -43,6 +43,9 @@ query billDetail($id: ID!) {
       }
     }
   }
+  me {
+    id
+  }
 }
 `;
 
@@ -63,16 +66,29 @@ const QueryItemList = ({ billId }) => (
       if (error) return <EmptyRow disp="Error :(" />;
       if (data.showBill.items.length === 0) return <EmptyRow disp="No items in this bill." />;
       return data.showBill.items.map(
-        item => (
+        item => {
+          let myShare = null;
+          item.assignments.map(ass => {
+            if (ass.user.id === data.me.id) {
+              myShare = <td><strong className="amount">{currencyFormat("$", ass.amount)}</strong>My share</td>;
+            }
+            return null;
+          });
+          if (myShare == null) {
+            myShare = <td>Not involved</td>;
+          }
+
+          return (
           <tr key={item.id} className="clearfix">
             <td>
               <strong className="member-name">{item.name}</strong>
-              Created by {item.createdBy.firstName} on {displayMediumDate(item.date)}
+              Created by {item.createdBy.firstName} on {displayShortDate(item.date)}
             </td>
             <td>
               <strong className="amount">{currencyFormat("$", item.total)}</strong>
               Paid by {item.paidBy.firstName}
             </td>
+            {myShare}
             <td>
               <Mutation mutation={DELETE_ITEM}
                 refetchQueries={({ loading, error, data }) => {
@@ -81,7 +97,7 @@ const QueryItemList = ({ billId }) => (
                   }
                   return [{
                     query: GET_ITEMS,
-                    variables: {id: billId}
+                    variables: { id: billId }
                   }];
                 }}>
                 {(deleteItem, { loading, error, data }) =>{
@@ -103,7 +119,8 @@ const QueryItemList = ({ billId }) => (
               </Mutation>
             </td>
           </tr>
-        )
+          );
+        }
       );
     }}
   </Query>

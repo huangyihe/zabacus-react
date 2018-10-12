@@ -41,7 +41,7 @@ const modeWeighted = (mode) => {
 };
 
 const filterAmountInput = (input) => {
-  const filteredValue = input.replace(/[^0-9\.]/gi, '');
+  const filteredValue = input.replace(/[^0-9.]/gi, '');
   const parts = filteredValue.split('.', 2);
   let textValue = parts.join(".");
   if (parts.length === 2 && parts[1].length >= 3) {
@@ -272,7 +272,7 @@ class NewItemFormDisplay extends React.Component {
         return null;
       });
       const error = roundedTotal - this.state.total;
-      if (error !== 0) {
+      if (Math.abs(error) >= 0.01) {
         const idx = randomInt(0, this.state.involved.length - 1);
         assignments[this.state.involved[idx].username] -= error;
       }

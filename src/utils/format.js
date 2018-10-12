@@ -4,6 +4,10 @@ export const displayLongDate = (date) => {
   return moment(date).format("YYYY-MM-DD HH:mm");
 };
 
+export const displayShortDate = (date) => {
+  return moment(date).format("MM-DD");
+}
+
 export const displayMediumDate = (date) => {
   return moment(date).format("YYYY-MM-DD");
 }

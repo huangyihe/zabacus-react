@@ -2,8 +2,10 @@ import md5 from 'md5';
 import React from 'react';
 import PropTypes from 'prop-types';
 import gql from 'graphql-tag';
-import { Query } from 'react-apollo';
+import { Redirect } from 'react-router-dom';
+import { Query, Mutation } from 'react-apollo';
 import { displayLongDate } from '../utils/format';
+import { LIST_BILLS } from './BillList';
 
 export const avatarLink = (email) => {
   const hashEmail = email ? email : "";
@@ -81,14 +83,76 @@ const MemberList = ({ billId }) => (
 );
 
 const GET_DETAILS = gql`
-query getMembers($id: ID!) {
+query getDetails($id: ID!) {
   showBill(bid: $id) {
     id
     date
     desc
+    createdBy {
+      id
+    }
+  }
+  me {
+    id
   }
 }
 `;
+
+const ADD_USER = gql`
+mutation addUser($id: ID!, $name: String!) {
+  addUserToBill(bid: $id, uname: $name) {
+    bill {
+      id
+    }
+  }
+}
+`;
+
+const UserSearchBar = ({ billId }) => {
+  let userSearch;
+
+  return (
+    <div className="input-group">
+      <input type="text" className="form-control" placeholder="Search by username"
+        ref={node => {userSearch = node;}} />
+      <span className="input-group-btn">
+        <Mutation mutation={ADD_USER}
+          refetchQueries={({ loading, error, data }) => {
+            if (loading || error) {
+              return [];
+            }
+            return [{
+              query: GET_MEMBERS,
+              variables: { id: billId }
+            }];
+          }}
+        >
+          {(addUser, { loading, error, data }) => {
+            return (
+              <button className="btn btn-default" type="button"
+                onClick={e => {
+                  e.preventDefault();
+                  if (userSearch.value === "") {
+                    return;
+                  }
+                  addUser({
+                    variables: {
+                      id: billId,
+                      name: userSearch.value
+                    }
+                  });
+                  userSearch.value = "";
+                }}
+              >
+                Add as Member
+              </button>
+            );
+          }}
+        </Mutation>
+      </span>
+    </div>
+  );
+}
 
 export const BillDetailsTab = ({ billId }) => (
   <Query query={GET_DETAILS} variables={{ id: billId }}>
@@ -97,6 +161,8 @@ export const BillDetailsTab = ({ billId }) => (
       if (error) return <h1>Error :(</h1>;
       const bill = data.showBill;
       if (bill == null) return <h1>Error :(</h1>;
+      let deleteButton = (data.me.id === bill.createdBy.id) ?
+        <DeleteBillButton billId={billId} /> : null;
       return (
         <div className="row-fluid">
           <div className="col-md-6">
@@ -105,12 +171,7 @@ export const BillDetailsTab = ({ billId }) => (
               <ul className="list-group">
                 <MemberList billId={billId} />
                 <li className="list-group-item">
-                  <div className="input-group">
-                    <input type="text" className="form-control" placeholder="Search by username." />
-                    <span className="input-group-btn">
-                      <button className="btn btn-default" type="button">Add as Member</button>
-                    </span>
-                  </div>
+                  <UserSearchBar billId={billId} />
                 </li>
               </ul>
             </div>
@@ -129,7 +190,7 @@ export const BillDetailsTab = ({ billId }) => (
                     <td>{bill.desc}</td>
                   </tr>
                   <tr>
-                    <td></td>
+                    <td>{deleteButton}</td>
                     <td>
                       <button type="button" className="btn btn-default btn-sm pull-right">
                         Edit
@@ -149,3 +210,49 @@ export const BillDetailsTab = ({ billId }) => (
 BillDetailsTab.propTypes = {
   billId: PropTypes.string.isRequired
 };
+
+const DELETE_BILL = gql`
+mutation deleteBill($id: ID!) {
+  deleteBill(bid: $id) {
+    result
+  }
+}
+`;
+
+const DeleteBillButton = ({ billId }) => (
+  <Mutation mutation={DELETE_BILL} variables={{ id: billId }}
+    refetchQueries={({ loading, error, data }) => {
+      if (loading || error) {
+        return [];
+      }
+      return [{ query: LIST_BILLS }];
+    }} >
+    {(deleteBill, { loading, error, data }) => {
+      var btnDisabled = false;
+      var btnText = "Delete";
+      if (loading) {
+        btnDisabled = true;
+      }
+      if (error) {
+        btnText = "Error :(";
+      }
+      if (data != null && data.deleteBill != null) {
+        return <Redirect to="/bills/list" />;
+      }
+
+      return (
+        <div>
+          <button type="button" className="btn btn-danger btn-sm pull-left"
+            onClick={e => {
+              e.preventDefault();
+              deleteBill();
+            }}
+            disabled={btnDisabled}
+          >
+            {btnText}
+          </button>
+        </div>
+      );
+    }}
+  </Mutation>
+);

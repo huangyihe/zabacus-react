@@ -26,7 +26,7 @@ const UserNameDisplay = () => (
         resetToken();
         return <Redirect to="/signin" />;
       }
-      return <span>{data.me.firstName + " " + data.me.lastName}</span>;
+      return <span>{`${data.me.firstName} ${data.me.lastName}`}</span>;
     }
   }
   </Query>
@@ -63,41 +63,43 @@ const NewBillForm = () => {
         return [];
       }
       return [{ query: LIST_BILLS }];
-    }}>
-    {(newBill, { loading, error, data }) => {
-      var buttonDisabled = false;
-      var errorTag = null;
-      if (loading) {
-        buttonDisabled = true;
-      }
-      if (error) {
-        errorTag = <span>Error :(</span>;
-      }
-      return (
-        <form className="form" onSubmit={e => {
-            e.preventDefault();
-            const params = genParams(billName.value, billDesc.value);
-            if (params != null) {
-              newBill({ variables: params });
-            }
-          }}
-        >
-          <input type="text" className="form-control"
-            placeholder="Give me a name?" ref={node => {billName = node;}} />
-          <textarea
-            className="form-control input-medium"
-            rows="7" ref={node => {billDesc = node;}}
-            placeholder="Tell me more about it!"
+      }}
+    >
+      {(newBill, { loading, error, data }) => {
+        var buttonDisabled = false;
+        if (loading) {
+          buttonDisabled = true;
+        }
+        return (
+          <form className="form" onSubmit={e => {
+              e.preventDefault();
+              const params = genParams(billName.value, billDesc.value);
+              if (params != null) {
+                newBill({ variables: params });
+                billName.value = "";
+                billDesc.value = "";
+              }
+            }}
           >
-          </textarea>
-          {errorTag}
-          <button type="submit" disabled={buttonDisabled}
-            className="btn btn-primary btn-lg pull-right">
-            Create
-          </button>
-        </form>
-      );
-    }}
+            <input type="text" className="form-control" required
+              placeholder="Give me a name?" ref={node => {billName = node;}} />
+            <textarea
+              className="form-control input-medium"
+              rows="7" ref={node => {billDesc = node;}}
+              placeholder="Tell me more about it!"
+              required
+            >
+            </textarea>
+            <button type="submit" disabled={buttonDisabled}
+              className="btn btn-primary btn-lg pull-right">
+              Create
+            </button>
+            {loading && <p>Please wait...</p>}
+            {error && <p>Query error :(</p>}
+            {data && data.createBill && <p>Bill added!</p>}
+          </form>
+        );
+      }}
     </Mutation>
   );
 };
