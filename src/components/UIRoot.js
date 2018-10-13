@@ -5,6 +5,7 @@ import { Home } from './Home';
 import { SignIn, SignUp } from './SignIn';
 import { BillList } from './BillList';
 import { BillView } from './BillView';
+import { ProfileView, EditProfileView } from './Profile';
 
 export const hasToken = () => (localStorage.getItem('token') != null);
 export const setToken = (jwt) => {
@@ -46,6 +47,8 @@ export const UIRoot = () => (
         } />
         <Route path="/bills/list" component={BillList} />
         <Route path="/bills/details/:billId" component={BillView} />
+        <Route path="/profile/edit" component={EditProfileView} />
+        <Route path="/profile" component={ProfileView} />
         {/*
         <Route path="/welcome" component={Welcome} />
         <Route path="/error" component={Err} />

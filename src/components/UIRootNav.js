@@ -6,7 +6,7 @@ import { hasToken, resetToken } from './UIRoot';
 import LinkButton from './LinkButton';
 import { LIST_BILLS } from './BillList';
 
-const GET_ME = gql`
+export const GET_ME = gql`
 query {
   me {
     id
@@ -122,7 +122,7 @@ export const UIRootNav = () => {
             <span className="caret"></span>
           </a>
           <ul className="dropdown-menu">
-            <li><a href="#">Profile</a></li>
+            <li><Link to="/profile">Profile</Link></li>
             <li><a href="#">Settings</a></li>
             <li role="separator" className="divider"></li>
             <li><Link to="/signout">Sign out</Link></li>
