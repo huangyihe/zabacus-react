@@ -5,6 +5,7 @@ import { Redirect } from 'react-router-dom';
 import { Query, Mutation } from 'react-apollo';
 import { avatarLink } from './BillDetails';
 import { GET_ME } from './UIRootNav';
+import { firstErrorMessage } from '../utils/errors';
 import LinkButton from './LinkButton';
 
 const GET_MY_PROFILE = gql`
@@ -116,137 +117,153 @@ mutation updateProfile($email: String, $first: String, $last: String, $newpass: 
 }
 `;
 
+class EditProfileForm extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      errorText: null
+    };
+
+    this.fname = null;
+    this.lname = null;
+    this.email = null;
+    this.oldpass = null;
+    this.newpass = null;
+  }
+
+  genParams() {
+    var params = {};
+    const me = this.props.me;
+    if (this.fname.value !== me.firstName) {
+      params.first = this.fname.value;
+    }
+    if (this.lname.value !== me.lastName) {
+      params.last = this.lname.value;
+    }
+    if (this.email.value !== me.email) {
+      params.email = this.email.value;
+    }
+    if (this.newpass.value !== ""
+          && this.newpass2.value === this.newpass.value
+          && this.oldpass.value !== "") {
+      params.newpass = this.newpass.value;
+      params.oldpass = this.oldpass.value;
+    }
+    if (Object.keys(params).length === 0) {
+      return null;
+    }
+    return params;
+  }
+
+  checkPasswords() {
+    if (this.newpass.value !== "") {
+      if (this.newpass2.value !== this.newpass.value
+            || this.oldpass.value === "") {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  render() {
+    return (
+      <Mutation mutation={UPDATE_PROFILE}
+        refetchQueries={({ loading, error, data }) => {
+          if (loading || error) return [];
+          return [{ query: GET_ME }, { query: GET_MY_PROFILE }];
+        }}
+      >
+        {(updateProfile, { loading, error, data }) => {
+          let me = this.props.me;
+          let btnDisable = false;
+          if (loading) {
+            btnDisable = true;
+          }
+          if (data && data.updateUser) {
+            return <Redirect to="/profile" />;
+          }
+
+          return (
+            <div className="container container-form">
+            <form onSubmit={e => {
+                e.preventDefault();
+                if (!this.checkPasswords()) {
+                  this.setState({
+                    errorText: "Passwords don't match."
+                  });
+                  return;
+                }
+                const params = this.genParams();
+                if (params != null) {
+                  updateProfile({ variables: params });
+                }
+              }}
+            >
+              <h3>Edit Profile</h3>
+              <div className="form-group">
+                <label htmlFor="updateFName">First Name</label>
+                <input type="text" className="form-control"
+                  defaultValue={me.firstName} ref={node => this.fname = node} />
+              </div>
+              <div className="form-group">
+                <label htmlFor="updateLName">Last Name</label>
+                <input type="text" className="form-control"
+                  defaultValue={me.lastName} ref={node => this.lname = node} />
+              </div>
+              <div className="form-group">
+                <label htmlFor="updateEmail">Email Address</label>
+                <input type="email" className="form-control"
+                  defaultValue={me.email} ref={node => this.email = node}/>
+              </div>
+              <div className="form-group">
+                {error && <p>{firstErrorMessage(error)}</p>}
+                <label htmlFor="oldPwd">Old Password</label>
+                <input type="password" className="form-control"
+                  placeholder="Old password" ref={node => this.oldpass = node} />
+              </div>
+              <div className="form-group">
+                <label htmlFor="newPwd">New Password</label>
+                <input type="password" className="form-control"
+                  placeholder="New password" ref={node => this.newpass = node} />
+              </div>
+              <div className="form-group">
+                <label htmlFor="confirmNewPwd">Confirm Password</label>
+                <input type="password" className="form-control"
+                  placeholder="Confirm new password" ref={node => this.newpass2 = node} />
+              </div>
+              {this.state.errorText && <p>{this.state.errorText}</p>}
+              <LinkButton to="/profile"
+                className="btn btn-default pull-left"
+                disabled={btnDisable}
+              >
+                Cancel
+              </LinkButton>
+              <button type="submit"
+                className="btn btn-primary pull-right"
+                disabled={btnDisable}
+              >
+                Save
+              </button>
+            </form>
+            </div>
+          );
+        }}
+      </Mutation>
+    );
+  }
+}
+
+EditProfileForm.propTypes = {
+  me: PropTypes.object.isRequired
+};
+
 export const EditProfileView = () => (
   <Query query={GET_MY_PROFILE} >
     {({ loading, error, data }) => {
-      if (loading || error) return <h3>Loading...</h3>;
-      let me = data.me;
-      return (
-        <Mutation mutation={UPDATE_PROFILE}
-          refetchQueries={({ loading, error, data }) => {
-            if (loading || error) return [];
-            return [{ query: GET_ME }, { query: GET_MY_PROFILE }];
-          }}
-        >
-          {(updateProfile, { loading, error, data }) => {
-            let fname;
-            let lname;
-            let email;
-            let oldpass;
-            let newpass;
-            let newpass2;
-
-            let errorText = null;
-            let btnDisable = false;
-
-            const genParams = () => {
-              var params = {};
-              if (fname.value !== me.firstName) {
-                params.first = fname.value;
-              }
-              if (lname.value !== me.lastName) {
-                params.last = lname.value;
-              }
-              if (email.value !== me.email) {
-                params.email = email.value;
-              }
-              if (newpass.value !== ""
-                    && newpass2.value === newpass.value
-                    && oldpass.value !== "") {
-                params.newpass = newpass.value;
-                params.oldpass = oldpass.value;
-              }
-              if (Object.keys(params).length === 0) {
-                return null;
-              }
-              return params;
-            };
-
-            const checkPasswords = () => {
-              if (newpass.value !== "") {
-                if (newpass2.value !== newpass.value
-                      || oldpass.value === "") {
-                  return false;
-                }
-              }
-              return true;
-            };
-
-            if (loading) {
-              btnDisable = true;
-            }
-            if (error) {
-              errorText = "That didn't work. Check your password?";
-            }
-            if (data && data.updateUser) {
-              return <Redirect to="/profile" />;
-            }
-
-            return (
-              <div className="container container-form">
-              <form onSubmit={e => {
-                  e.preventDefault();
-                  if (!checkPasswords()) {
-                    // XXX TODO: this doesn't really work
-                    errorText = "Please enter the same passwords!";
-                    return;
-                  }
-                  const params = genParams();
-                  if (params != null) {
-                    updateProfile({ variables: params });
-                  }
-                }}
-              >
-                <h3>Edit Profile</h3>
-                <div className="form-group">
-                  <label htmlFor="updateFName">First Name</label>
-                  <input type="text" className="form-control"
-                    defaultValue={me.firstName} ref={node => fname = node} />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="updateLName">Last Name</label>
-                  <input type="text" className="form-control"
-                    defaultValue={me.lastName} ref={node => lname = node} />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="updateEmail">Email Address</label>
-                  <input type="email" className="form-control"
-                    defaultValue={me.email} ref={node => email = node}/>
-                </div>
-                <div className="form-group">
-                  <label htmlFor="oldPwd">Old Password</label>
-                  <input type="password" className="form-control"
-                    placeholder="Old password" ref={node => oldpass = node} />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="newPwd">New Password</label>
-                  <input type="password" className="form-control"
-                    placeholder="New password" ref={node => newpass = node} />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="confirmNewPwd">Confirm Password</label>
-                  <input type="password" className="form-control"
-                    placeholder="Confirm new password" ref={node => newpass2 = node} />
-                </div>
-                {errorText && <p>{errorText}</p>}
-                <LinkButton to="/profile"
-                  className="btn btn-default pull-left"
-                  disabled={btnDisable}
-                >
-                  Cancel
-                </LinkButton>
-                <button type="submit"
-                  className="btn btn-primary pull-right"
-                  disabled={btnDisable}
-                >
-                  Save
-                </button>
-              </form>
-              </div>
-            );
-          }}
-        </Mutation>
-      );
+      if (loading) return <h3>Loading...</h3>;
+      if (error) return <h3>Error :(</h3>;
+      return <EditProfileForm me={data.me} />;
     }}
   </Query>
 );

@@ -2,7 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'jquery/src/jquery';
-import Popper from 'popper.js';
 import 'bootstrap/dist/js/bootstrap.min';
 import './ZAbacus.css';
 import ZAbacus from './App';

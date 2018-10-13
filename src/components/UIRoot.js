@@ -77,7 +77,7 @@ export const UIRoot = () => (
             <li>Contact Us</li>
           </ul>
           <ul className="list-inline zabacus-footer-links">
-            <li>&copy; 2015 The ZAbacus Team</li>
+            <li>&copy; 2015-2018 The ZAbacus Team</li>
             <li>&middot;</li>
             <li>Code licenced under MIT</li>
           </ul>
