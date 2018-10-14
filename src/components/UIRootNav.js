@@ -112,18 +112,17 @@ export const UIRootNav = () => {
     navRight = (
       <ul className="nav navbar-nav navbar-right">
         <li className="dropdown">
-          <a href="#"
-            className="dropdown-toggle"
+          <span className="dropdown-toggle"
             data-toggle="dropdown"
             role="button" aria-haspopup="true"
             aria-expanded="false"
           >
             <UserNameDisplay />
             <span className="caret"></span>
-          </a>
+          </span>
           <ul className="dropdown-menu">
             <li><Link to="/profile">Profile</Link></li>
-            <li><a href="#">Settings</a></li>
+            <li><Link to="/profile">Settings</Link></li>
             <li role="separator" className="divider"></li>
             <li><Link to="/signout">Sign out</Link></li>
           </ul>
@@ -134,8 +133,7 @@ export const UIRootNav = () => {
     navLeft = (
       <ul className="nav navbar-nav navbar-left">
         <li className="dropdown">
-          <a href="#"
-            className="dropdown-toggle"
+          <span className="dropdown-toggle"
             data-toggle="dropdown"
             role="button"
             aria-haspopup="true"
@@ -143,19 +141,21 @@ export const UIRootNav = () => {
           >
             List Bills
             <span className="caret"></span>
-          </a>
+          </span>
           <ul className="dropdown-menu">
-            <li><a href="#">Unsettled</a></li>
-            <li><a href="#">All</a></li>
-            <li><a href="#">Created by me</a></li>
+            <li><Link to="/bills/list">Unsettled</Link></li>
+            <li><Link to="/bills/list">All</Link></li>
+            <li><Link to="/bills/list">Created by me</Link></li>
           </ul>
         </li>
         {/* new events drop down */}
         <li className="dropdown" id="menuLogin">
-          <a className="dropdown-toggle" href="#" data-toggle="dropdown">
+          <span className="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button">
             New Bill
             <span className="caret"></span>
-          </a>
+          </span>
           <div className="dropdown-menu dropdown-wide">
             <NewBillForm />
           </div>

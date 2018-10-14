@@ -175,3 +175,74 @@ div.container-form {
   width: 76px;
   margin-right: 15px;
 }
+
+.nav-tabs > li.active > span,
+.nav-tabs > li.active > span:focus,
+.nav-tabs > li.active > span:hover {
+  color: #555;
+  cursor: pointer;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-bottom-color: transparent;
+}
+
+.nav-tabs > li > span {
+  cursor: pointer;
+  margin-right: 2px;
+  line-height: 1.42857143;
+  border: 1px solid transparent;
+  border-radius: 4px 4px 0 0;
+}
+
+.nav > li > span {
+  position: relative;
+  display: block;
+  padding: 10px 15px;
+}
+
+.nav > li > span:focus, .nav > li > span:hover {
+  text-decoration: none;
+  background-color: #eee;
+}
+
+.nav-tabs > li > span:hover {
+  border-color: #eee #eee #ddd;
+}
+
+.dropdown-menu > li > span {
+  cursor: pointer;
+  display: block;
+  padding: 3px 20px;
+  clear: both;
+  font-weight: 400;
+  line-height: 1.42857143;
+  color: #333;
+  white-space: nowrap;
+}
+
+.dropdown-menu > li > span:hover {
+  text-decoration: none;
+  background-color: #eee;
+}
+
+.navbar-nav > li > span {
+	padding-top: 15px;
+	padding-bottom: 15px;
+}
+
+.navbar-inverse .navbar-nav > .open > span,
+.navbar-inverse .navbar-nav > .open > span:focus,
+.navbar-inverse .navbar-nav > .open > span:hover {
+  color: #fff;
+  background-color: #080808;
+}
+
+.navbar-inverse .navbar-nav > li > span {
+	color: #9d9d9d;
+}
+
+.navbar-inverse .navbar-nav > li > span:focus,
+.navbar-inverse .navbar-nav > li > span:hover {
+  color: #fff;
+  background-color: transparent;
+}

@@ -99,8 +99,12 @@ export const BillList = () => {
       <div className="row-fluid">
         <nav>
           <ul className="pager">
-            <li className="previous disabled"><a href="#"><span aria-hidden="true">&larr;</span> Previous</a></li>
-            <li className="next disabled"><a href="#">Next <span aria-hidden="true">&rarr;</span></a></li>
+            <li className="previous disabled">
+              <Link to="/bills/list"><span aria-hidden="true">&larr;</span> Previous</Link>
+            </li>
+            <li className="next disabled">
+              <Link to="/bills/list">Next <span aria-hidden="true">&rarr;</span></Link>
+            </li>
           </ul>
         </nav>
       </div>

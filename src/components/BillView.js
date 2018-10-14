@@ -46,11 +46,11 @@ const BillNavBar = (props) => (
   <div className="row">
     <ul className="nav nav-tabs">
       <li role="presentation" className={activeOn(props.tabName, "details")}
-        onClick={e => {props.activateTab('details')}}><a>Details</a></li>
+        onClick={e => {props.activateTab('details')}}><span>Details</span></li>
       <li role="presentation" className={activeOn(props.tabName, "items")}
-        onClick={e => {props.activateTab('items')}}><a>Items</a></li>
+        onClick={e => {props.activateTab('items')}}><span>Items</span></li>
       <li role="presentation" className={activeOn(props.tabName, "settlement")}
-        onClick={e => {props.activateTab('settlement')}}><a>Settlement</a></li>
+        onClick={e => {props.activateTab('settlement')}}><span>Settlement</span></li>
     </ul>
   </div>
 );

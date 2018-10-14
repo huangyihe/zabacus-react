@@ -459,7 +459,7 @@ const FormPayerSelector = ({ payer, people, makePayer, payerReset }) => {
 
   const availList = people.map(user => (
     <li key={user.id} onClick={e => makePayer(user)}>
-      <a>{`${user.firstName} ${user.lastName}`}</a>
+      <span>{`${user.firstName} ${user.lastName}`}</span>
     </li>
   ));
 
@@ -547,7 +547,7 @@ const FormMemberList = ({ involved, members, addInvolved, removeInvolved,
 
   const availList = members.map(user => (
     <li key={user.id} onClick={e => {addInvolved(user);}}>
-      <a>{`${user.firstName} ${user.lastName}`}</a>
+      <span>{`${user.firstName} ${user.lastName}`}</span>
     </li>
   ));
 
