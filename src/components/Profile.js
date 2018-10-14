@@ -57,35 +57,22 @@ export const ProfileView = () => (
       if (loading) { heading = "Loading..."; }
       if (error) { heading = "Error :("; }
       return (
-        <div className="container container-body" style={{maxWidth: 560}}>
-          <div className="row">
-            <ol className="breadcrumb">
-              <li className="active"><em>beta</em></li>
-            </ol>
-          </div>
-
+        <div className="container container-form">
           <div className="row vertical-align">
             <div className="col-xs-12">
-              <h1>{heading}</h1>
+              <h3>{heading}</h3>
             </div>
           </div>
-
           <div className="row">
             <div className="panel panel-default">
-              <div className="panel-heading">Profile</div>
+              <div className="panel-heading"><em>User ID: {getfield(data, 'id')}</em></div>
               <table className="table">
-                <thead>
-                  <tr>
-                    <th>Field</th>
-                    <th>Value</th>
-                  </tr>
-                </thead>
                 <tbody>
+                  <TableCell disp={[fieldTitle("Avatar"), fieldAvtr(data)]} />
                   <TableCell disp={[fieldTitle("Username"), getfield(data, 'username')]} />
                   <TableCell disp={[fieldTitle("Email"), getfield(data, 'email')]} />
                   <TableCell disp={[fieldTitle("First Name"), getfield(data, 'firstName')]} />
                   <TableCell disp={[fieldTitle("Last Name"), getfield(data, 'lastName')]} />
-                  <TableCell disp={[fieldTitle("Avatar"), fieldAvtr(data)]} />
                   <TableCell disp={[null, gravatarPrompt]} />
                 </tbody>
                 <tfoot>
