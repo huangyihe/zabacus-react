@@ -223,6 +223,7 @@ class EditProfileForm extends React.Component {
               {this.state.errorText && <p>{this.state.errorText}</p>}
               <LinkButton to="/profile"
                 className="btn btn-default pull-left"
+                onClick={e => e.preventDefault()}
                 disabled={btnDisable}
               >
                 Cancel
