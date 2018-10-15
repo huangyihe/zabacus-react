@@ -4,8 +4,10 @@ import PropTypes from 'prop-types';
 import gql from 'graphql-tag';
 import { Redirect } from 'react-router-dom';
 import { Query, Mutation } from 'react-apollo';
+import { Button, Modal, FormGroup, ControlLabel, FormControl, HelpBlock } from 'react-bootstrap';
 import { displayLongDate } from '../utils/format';
 import { LIST_BILLS } from './BillList';
+import { firstErrorMessage } from '../utils/errors';
 
 export const avatarLink = (email) => {
   const hashEmail = email ? email : "";
@@ -86,6 +88,7 @@ const GET_DETAILS = gql`
 query getDetails($id: ID!) {
   showBill(bid: $id) {
     id
+    name
     date
     desc
     createdBy {
@@ -162,7 +165,7 @@ export const BillDetailsTab = ({ billId }) => (
       const bill = data.showBill;
       if (bill == null) return <h1>Error :(</h1>;
       let deleteButton = (data.me.id === bill.createdBy.id) ?
-        <DeleteBillButton billId={billId} /> : null;
+        <DeleteBillComponent billId={billId} billName={bill.name} /> : null;
       return (
         <div className="row-fluid">
           <div className="col-md-6">
@@ -219,40 +222,109 @@ mutation deleteBill($id: ID!) {
 }
 `;
 
-const DeleteBillButton = ({ billId }) => (
-  <Mutation mutation={DELETE_BILL} variables={{ id: billId }}
-    refetchQueries={({ loading, error, data }) => {
-      if (loading || error) {
-        return [];
-      }
-      return [{ query: LIST_BILLS }];
-    }} >
-    {(deleteBill, { loading, error, data }) => {
-      var btnDisabled = false;
-      var btnText = "Delete";
-      if (loading) {
-        btnDisabled = true;
-      }
-      if (error) {
-        btnText = "Error :(";
-      }
-      if (data != null && data.deleteBill != null) {
-        return <Redirect to="/bills/list" />;
-      }
+class DeleteBillComponent extends React.Component {
+  constructor(props) {
+    super(props);
 
-      return (
-        <div>
-          <button type="button" className="btn btn-danger btn-sm pull-left"
-            onClick={e => {
-              e.preventDefault();
-              deleteBill();
-            }}
-            disabled={btnDisabled}
-          >
-            {btnText}
-          </button>
-        </div>
-      );
-    }}
-  </Mutation>
-);
+    this.state = {
+      show: false,
+      value: ""
+    };
+
+    this.handleShow = this.handleShow.bind(this);
+    this.handleClose = this.handleClose.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+  }
+
+  getValidationState() {
+    if (this.state.value === "") {
+      return null;
+    }
+    if (this.props.billName === this.state.value) {
+      return "success";
+    } else {
+      return "error";
+    }
+  }
+  formValid() {
+    return (this.props.billName === this.state.value);
+  }
+
+  handleShow() {
+    this.setState({ show: true });
+  }
+  handleClose() {
+    this.setState({ show: false });
+  }
+  handleChange(e) {
+    this.setState({ value: e.target.value });
+  }
+
+  render() {
+    return (
+      <div>
+        <Button bsStyle="danger" bsSize="small" onClick={this.handleShow}>
+          Delete
+        </Button>
+        <Modal show={this.state.show} onHide={this.handleClose}>
+          <Modal.Header closeButton>
+            <Modal.Title>Delete Bill</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Mutation mutation={DELETE_BILL} variables={{ id: this.props.billId }}
+              refetchQueries={({ loading, error, data }) => {
+                if (loading || error) {
+                  return [];
+                }
+                return [{ query: LIST_BILLS }];
+              }}
+            >
+              {(deleteBill, {loading, error, data}) => {
+                let btnDisabled = false;
+                if (!this.formValid() || loading) {
+                  btnDisabled = true;
+                }
+                if (data && data.deleteBill) {
+                  return <Redirect to="/bills/list" />;
+                }
+                return (
+                  <form
+                    onSubmit={e => {
+                      e.preventDefault();
+                      deleteBill();
+                    }}
+                  >
+                    <FormGroup
+                      controlId="deleteBillForm"
+                      validationState={this.getValidationState()}
+                    >
+                      <ControlLabel>Please enter the name of the bill to proceed with deletion:</ControlLabel>
+                      <FormControl
+                        type="text"
+                        value={this.state.value}
+                        onChange={this.handleChange}
+                      />
+                      <FormControl.Feedback />
+                      <HelpBlock>Note: This action cannot be undone!</HelpBlock>
+                      {error && <p>{firstErrorMessage(error)}</p>}
+                      <Button bsStyle="danger" type="submit" disabled={btnDisabled}>Delete</Button>
+                    </FormGroup>
+                  </form>
+                );
+              }}
+
+            </Mutation>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button onClick={this.handleClose}>Close</Button>
+          </Modal.Footer>
+        </Modal>
+      </div>
+    );
+  }
+}
+
+DeleteBillComponent.propTypes = {
+  billId: PropTypes.string.isRequired,
+  billName: PropTypes.string.isRequired
+};

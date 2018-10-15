@@ -31,7 +31,8 @@ const TableCell = ({ disp }) => <tr>{disp.map((ele, i) => <td key={i}>{ele}</td>
 
 const gravatarPrompt = (
   <em>
-    Change your avatar at <a href="https://en.gravatar.com/"
+    Change your avatar at{' '}
+    <a href="https://en.gravatar.com/"
       target="_blank"
       rel="noopener noreferrer">
       Gravatar
