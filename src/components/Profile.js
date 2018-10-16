@@ -7,6 +7,7 @@ import { avatarLink } from './BillDetails';
 import { GET_ME } from './UIRootNav';
 import { firstErrorMessage } from '../utils/errors';
 import LinkButton from './LinkButton';
+import { hasToken } from './UIRoot';
 
 const GET_MY_PROFILE = gql`
 query {
@@ -51,7 +52,7 @@ const getfield = (data, fn) => {
   return null;
 };
 
-export const ProfileView = () => (
+export const ProfileView = () => hasToken() ? (
   <Query query={GET_MY_PROFILE} >
     {({ loading, error, data }) => {
       let heading = "User Profile";
@@ -93,7 +94,7 @@ export const ProfileView = () => (
       );
     }}
   </Query>
-);
+) : <Redirect to="/" />;
 
 const UPDATE_PROFILE = gql`
 mutation updateProfile($email: String, $first: String, $last: String, $newpass: String, $oldpass: String) {
@@ -247,7 +248,7 @@ EditProfileForm.propTypes = {
   me: PropTypes.object.isRequired
 };
 
-export const EditProfileView = () => (
+export const EditProfileView = () => hasToken() ? (
   <Query query={GET_MY_PROFILE} >
     {({ loading, error, data }) => {
       if (loading) return <h3>Loading...</h3>;
@@ -255,4 +256,4 @@ export const EditProfileView = () => (
       return <EditProfileForm me={data.me} />;
     }}
   </Query>
-);
+) : <Redirect to="/" />;

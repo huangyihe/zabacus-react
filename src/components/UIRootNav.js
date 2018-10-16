@@ -1,10 +1,15 @@
 import React from 'react';
 import gql from 'graphql-tag';
+import { PropTypes } from 'prop-types';
+import { FormGroup, FormControl, ControlLabel, Button, Modal } from 'react-bootstrap';
+import { Nav, Navbar, NavItem, NavDropdown, MenuItem } from 'react-bootstrap';
+import { LinkContainer } from 'react-router-bootstrap';
 import { Query, Mutation } from 'react-apollo';
 import { Link, Redirect } from 'react-router-dom';
 import { hasToken, resetToken } from './UIRoot';
 import LinkButton from './LinkButton';
 import { LIST_BILLS } from './BillList';
+import { firstErrorMessage } from '../utils/errors';
 
 export const GET_ME = gql`
 query {
@@ -18,8 +23,7 @@ query {
 
 const UserNameDisplay = () => (
   <Query query={GET_ME}>
-  {
-    ({ loading, error, data}) => {
+    {({ loading, error, data}) => {
       if (loading) return <span>Loading...</span>;
       if (error) {
         // token invalid
@@ -27,8 +31,7 @@ const UserNameDisplay = () => (
         return <Redirect to="/signin" />;
       }
       return <span>{`${data.me.firstName} ${data.me.lastName}`}</span>;
-    }
-  }
+    }}
   </Query>
 );
 
@@ -42,179 +45,185 @@ mutation newBill($name: String!, $desc: String!) {
 }
 `;
 
-const NewBillForm = () => {
-  let billName;
-  let billDesc;
+class NewBillForm extends React.Component {
+  constructor(props) {
+    super(props);
 
-  const genParams = (name, desc) => {
-    if (name === "" || desc === "") {
-      console.log("validation filed, mutation not generated");
+    this.state = {
+      errorText: null
+    };
+
+    this.billName = null;
+    this.billDesc = null;
+  }
+
+  formNotValid() {
+    return (!this.billName || !this.billDesc
+      || this.billName.value === "" || this.billDesc.value === "");
+  }
+
+  genParams() {
+    if (this.formNotValid()) {
+      this.setState({
+        errorText: "Please fill out all fields."
+      })
       return null;
     }
     return {
-      name: name,
-      desc: desc
+      name: this.billName.value,
+      desc: this.billDesc.value
     };
   }
 
-  return (
-    <Mutation mutation={NEW_BILL} refetchQueries={({ loading, error, data }) => {
-      if (loading || error || data.createBill == null) {
-        return [];
-      }
-      return [{ query: LIST_BILLS }];
-      }}
-    >
-      {(newBill, { loading, error, data }) => {
-        var buttonDisabled = false;
-        if (loading) {
-          buttonDisabled = true;
+  render() {
+    return (
+      <Mutation mutation={NEW_BILL} refetchQueries={({ loading, error, data }) => {
+        if (loading || error || data.createBill == null) {
+          return [];
         }
-        return (
-          <form className="form" onSubmit={e => {
-              e.preventDefault();
-              const params = genParams(billName.value, billDesc.value);
-              if (params != null) {
-                newBill({ variables: params });
-                billName.value = "";
-                billDesc.value = "";
-              }
-            }}
-          >
-            <input type="text" className="form-control" required
-              placeholder="Give me a name?" ref={node => {billName = node;}} />
-            <textarea
-              className="form-control input-medium"
-              rows="7" ref={node => {billDesc = node;}}
-              placeholder="Tell me more about it!"
-              required
+        return [{ query: LIST_BILLS }];
+        }}
+        onCompleted={data => this.props.onSuccess()}
+      >
+        {(newBill, { loading, error, data }) => {
+          var btnDisabled = false;
+          if (loading) {
+            btnDisabled = true;
+          }
+          return (
+            <form className="form"
+              onSubmit={e => {
+                e.preventDefault();
+                const params = this.genParams();
+                if (params != null) {
+                  newBill({ variables: params });
+                }
+              }}
             >
-            </textarea>
-            <button type="submit" disabled={buttonDisabled}
-              className="btn btn-primary btn-lg pull-right">
-              Create
-            </button>
-            {loading && <p>Please wait...</p>}
-            {error && <p>Query error :(</p>}
-            {data && data.createBill && <p>Bill added!</p>}
-          </form>
-        );
-      }}
-    </Mutation>
-  );
+              <FormGroup>
+                <ControlLabel>Name your bill</ControlLabel>
+                <FormControl type="text" inputRef={node => this.billName = node}
+                  placeholder="Awesome road trip" />
+                <ControlLabel>Description</ControlLabel>
+                <FormControl componentClass="textarea"
+                  rows={3} inputRef={node => this.billDesc = node}
+                  placeholder="We flew to Colorado, then followed I-70 all the way to Arizona..." />
+              </FormGroup>
+              {loading && <p>Please wait...</p>}
+              {error && <p>{firstErrorMessage(error)}</p>}
+              {this.state.errorText && <p>{this.state.errorText}</p>}
+              <Button type="submit" bsSize="large" bsStyle="primary"
+                disabled={btnDisabled}>Create</Button>
+            </form>
+          );
+        }}
+      </Mutation>
+    );
+  }
 };
 
-export const UIRootNav = () => {
-  let navRight;
-  let navLeft;
+NewBillForm.propTypes = {
+  onSuccess: PropTypes.func.isRequired
+};
 
-  if (hasToken()) {
-    navRight = (
-      <ul className="nav navbar-nav navbar-right">
-        <li className="dropdown">
-          <span className="dropdown-toggle"
-            data-toggle="dropdown"
-            role="button" aria-haspopup="true"
-            aria-expanded="false"
-          >
-            <UserNameDisplay />
-            <span className="caret"></span>
-          </span>
-          <ul className="dropdown-menu">
-            <li><Link to="/profile">Profile</Link></li>
-            <li><Link to="/profile">Settings</Link></li>
-            <li role="separator" className="divider"></li>
-            <li><Link to="/signout">Sign out</Link></li>
-          </ul>
-        </li>
-      </ul>
-    );
+export class UIRootNav extends React.Component {
+  constructor(props) {
+    super(props);
 
-    navLeft = (
-      <ul className="nav navbar-nav navbar-left">
-        <li className="dropdown">
-          <span className="dropdown-toggle"
-            data-toggle="dropdown"
-            role="button"
-            aria-haspopup="true"
-            aria-expanded="false"
-          >
-            List Bills
-            <span className="caret"></span>
-          </span>
-          <ul className="dropdown-menu">
-            <li><Link to="/bills/list">Unsettled</Link></li>
-            <li><Link to="/bills/list">All</Link></li>
-            <li><Link to="/bills/list">Created by me</Link></li>
-          </ul>
-        </li>
-        {/* new events drop down */}
-        <li className="dropdown" id="menuLogin">
-          <span className="dropdown-toggle"
-            data-toggle="dropdown"
-            role="button">
-            New Bill
-            <span className="caret"></span>
-          </span>
-          <div className="dropdown-menu dropdown-wide">
-            <NewBillForm />
-          </div>
-        </li>
-      </ul>
-    );
-  } else {
-    // Not logged in
-    navRight = (
-      <ul className="nav navbar-nav navbar-right">
-        <li>
+    this.state = {
+      show: false
+    }
+
+    this.handleShow = this.handleShow.bind(this);
+    this.handleClose = this.handleClose.bind(this);
+  }
+
+  handleShow() {
+    this.setState({ show: true });
+  }
+  handleClose() {
+    this.setState({ show: false });
+  }
+
+  render() {
+    let navRight;
+    let navLeft;
+
+    if (hasToken()) {
+      navRight = (
+        <Nav pullRight>
+          <NavDropdown title={<UserNameDisplay />} id="user-dropdown">
+            <LinkContainer to="/profile">
+              <MenuItem>Profile</MenuItem>
+            </LinkContainer>
+            <LinkContainer to="/profile">
+              <MenuItem>Settings</MenuItem>
+            </LinkContainer>
+            <MenuItem divider />
+            <LinkContainer to="/signout">
+              <MenuItem>Sign out</MenuItem>
+            </LinkContainer>
+          </NavDropdown>
+        </Nav>
+      );
+
+      navLeft = (
+        <Nav>
+          <NavDropdown eventKey={1} title="List Bills" id="list-bills-dropdown">
+            <MenuItem eventKey={1.1}>All bills</MenuItem>
+            <MenuItem eventKey={1.2}>Open bills</MenuItem>
+            <MenuItem eventKey={1.3}>Created by me</MenuItem>
+          </NavDropdown>
+          <NavItem onClick={this.handleShow}>
+            Create New Bill
+          </NavItem>
+        </Nav>
+      );
+    } else {
+      // Not logged in
+      navRight = (
+        <Nav pullRight>
           <LinkButton
             to="/signin" type="button"
             className="btn btn-success navbar-btn sign-btn"
           >
             Sign in
           </LinkButton>
-        </li>
-        <li>
           <LinkButton
             to="/signup" type="button"
             className="btn btn-default navbar-btn sign-btn"
           >
             Sign up
           </LinkButton>
-        </li>
-      </ul>
-    );
-    navLeft = null;
-  }
+        </Nav>
+      );
+      navLeft = null;
+    }
 
-  return (
-    <header role="navigation">
-      <nav className="navbar navbar-inverse navbar-static-top navbar-no-margin">
-        <div className="container-fluid">
-          {/* Brand and toggle get grouped for better mobile display */}
-          <div className="navbar-header">
-            <button
-              type="button"
-              className="navbar-toggle collapsed"
-              data-toggle="collapse"
-              data-target="#bs-example-navbar-collapse-1"
-              aria-expanded="false"
-            >
-              <span className="sr-only">Toggle navigation</span>
-              <span className="icon-bar"></span>
-              <span className="icon-bar"></span>
-              <span className="icon-bar"></span>
-            </button>
-            <Link to="/" className="navbar-brand">ZAbacus</Link>
-          </div>
-    
-          {/* Collect the nav links, forms, and other content for toggling */}
-          <div className="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+    return (
+      <header role="navigation">
+        <Navbar inverse collapseOnSelect staticTop className="navbar-no-margin">
+          <Navbar.Header>
+            <Navbar.Brand>
+              <Link to="/">ZAbacus</Link>
+            </Navbar.Brand>
+            <Navbar.Toggle />
+          </Navbar.Header>
+          <Navbar.Collapse>
             {navLeft}
             {navRight}
-          </div>{/* /.navbar-collapse */}
-        </div>{/* /.container-fluid */}
-      </nav>
-    </header>
-  );
+          </Navbar.Collapse>
+        </Navbar>
+
+        <Modal show={this.state.show} onHide={this.handleClose} >
+          <Modal.Header closeButton>
+            <Modal.Title>Create a Bill</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <NewBillForm onSuccess={this.handleClose} />
+          </Modal.Body>
+        </Modal>
+      </header>
+    );
+  }
 };
