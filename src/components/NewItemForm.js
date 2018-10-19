@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { MemberBlock } from './BillDetails';
 import gql from 'graphql-tag';
 import { Query, Mutation } from 'react-apollo';
+import { Radio } from 'react-bootstrap';
+import { MemberBlock } from './BillDetails';
 import { GET_ITEMS } from './BillItemList';
 
 const moveFromAToB = (t, A, B) => {
@@ -420,20 +421,20 @@ const FormModeSel = ({ weightedReset, customReset, mode }) => {
     <div className="row-fluid clearfix in-form-margin">
       <div className="col-xs-6">
         <div className="input-group">
-          <span className="input-group-addon">
-            <input type="radio" value="weighted" checked={modeWeighted(mode)}
-              onChange={changeHandler} />
-          </span>
-          <input type="text" className="form-control" disabled="disabled" value="Weighted" />
+          <Radio inline={true} value="weighted"
+            checked={modeWeighted(mode)} onChange={changeHandler}
+          >
+            Weighted
+          </Radio>
         </div>
       </div>
       <div className="col-xs-6">
         <div className="input-group">
-          <span className="input-group-addon">
-            <input type="radio" value="custom" checked={modeCustom(mode)}
-              onChange={changeHandler} />
-          </span>
-          <input type="text" className="form-control" disabled="disabled" value="Custom" />
+          <Radio inline={true} value="custom"
+            checked={modeCustom(mode)} onChange={changeHandler}
+          >
+            Custom
+          </Radio>
         </div>
       </div>
     </div>
