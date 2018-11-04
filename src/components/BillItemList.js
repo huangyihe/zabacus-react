@@ -25,6 +25,7 @@ query billDetail($id: ID!) {
     items {
       id
       name
+      date
       createdBy {
         id
         firstName
