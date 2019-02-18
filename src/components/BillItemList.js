@@ -1,4 +1,6 @@
 import React from 'react';
+import Popover from 'react-bootstrap/lib/Popover';
+import OverlayTrigger from 'react-bootstrap/lib/OverlayTrigger';
 import PropTypes from 'prop-types';
 import gql from 'graphql-tag';
 import { Query, Mutation } from 'react-apollo';
@@ -25,6 +27,7 @@ query billDetail($id: ID!) {
     items {
       id
       name
+      desc
       date
       createdBy {
         id
@@ -69,6 +72,7 @@ const QueryItemList = ({ billId }) => (
       return data.showBill.items.map(
         item => {
           let myShare = null;
+
           item.assignments.map(ass => {
             if (ass.user.id === data.me.id) {
               myShare = <td><strong className="amount">{currencyFormat("$", ass.amount)}</strong>My share</td>;
@@ -76,15 +80,27 @@ const QueryItemList = ({ billId }) => (
             return null;
           });
           if (myShare == null) {
-            myShare = <td>Not involved</td>;
+            if (item.paidBy.id === data.me.id) {
+              myShare = <td><strong className="amount">{currencyFormat("$", 0.00)}</strong>My share</td>;
+            } else {
+              myShare = <td>Not involved</td>;
+            }
           }
+
+          const descPopover = (
+            <Popover id="popover-basic" title={<strong>{item.name}</strong>}>
+              {item.desc}
+            </Popover>
+          );
 
           return (
           <tr key={item.id} className="clearfix">
+            <OverlayTrigger trigger="hover" placement="left" overlay={descPopover}>
             <td>
               <strong className="member-name">{item.name}</strong>
               Created by {item.createdBy.firstName} on {displayShortDate(item.date)}
             </td>
+            </OverlayTrigger>
             <td>
               <strong className="amount">{currencyFormat("$", item.total)}</strong>
               Paid by {item.paidBy.firstName}
