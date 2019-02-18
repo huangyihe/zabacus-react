@@ -46,6 +46,18 @@
   font-size: large;
 }
 
+.status-settled {
+  color: #767676;
+}
+
+.status-open {
+  color: green;
+}
+
+.status-dispute {
+  color: red;
+}
+
 .list-group-item .owner-marker {
   border-style: solid;
   border-width: 1px;

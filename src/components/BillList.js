@@ -4,7 +4,7 @@ import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
 import { Link, Redirect } from 'react-router-dom';
 import { hasToken } from './UIRoot';
-import { displayStatus, displayLongDate } from '../utils/format';
+import { displayStatus, displayLongDate, statusClass } from '../utils/format';
 
 export const LIST_BILLS = gql`
 {
@@ -52,7 +52,7 @@ const Bills = (props) => (
           {displayLongDate(bill.date)}
         </td>
         <td>{/* status or amount? */}
-          <strong className="status">{displayStatus(bill.status)}</strong>
+          <strong className={statusClass(bill.status)}>{displayStatus(bill.status)}</strong>
         </td>
       </tr>
     ));

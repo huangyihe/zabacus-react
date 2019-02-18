@@ -23,3 +23,7 @@ const statuses = {
 };
 
 export const displayStatus = (status) => statuses[status];
+
+export const statusClass = (status) => {
+  return "status status-" + statuses[status].toLowerCase();
+};
