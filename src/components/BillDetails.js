@@ -5,7 +5,7 @@ import gql from 'graphql-tag';
 import { Redirect } from 'react-router-dom';
 import { Query, Mutation } from 'react-apollo';
 import { Button, Modal } from 'react-bootstrap';
-import { FormGroup, FormControl } from 'react-bootstrap';
+import { FormGroup, FormControl} from 'react-bootstrap';
 import { ControlLabel, HelpBlock } from 'react-bootstrap';
 import { displayLongDate } from '../utils/format';
 import { LIST_BILLS } from './BillList';
@@ -93,6 +93,7 @@ query getDetails($id: ID!) {
     name
     date
     desc
+    status
     createdBy {
       id
     }
@@ -168,6 +169,7 @@ export const BillDetailsTab = ({ billId }) => (
       if (bill == null) return <h1>Error :(</h1>;
       let deleteButton = (data.me.id === bill.createdBy.id) ?
         <DeleteBillComponent billId={billId} billName={bill.name} /> : null;
+      let editButton = <UpdateBillComponent billId={billId} billName={bill.name} billDesc={bill.desc} billStatus={bill.status} />;
       return (
         <div className="row-fluid">
           <div className="col-md-6">
@@ -197,9 +199,10 @@ export const BillDetailsTab = ({ billId }) => (
                   <tr>
                     <td>{deleteButton}</td>
                     <td>
-                      <button type="button" className="btn btn-default btn-sm pull-right">
+                      {/*<button type="button" className="btn btn-default btn-sm pull-right">
                         Edit
-                      </button>
+                      </button>*/
+                      editButton}
                     </td>
                   </tr>
                 </tbody>
@@ -329,4 +332,181 @@ class DeleteBillComponent extends React.Component {
 DeleteBillComponent.propTypes = {
   billId: PropTypes.string.isRequired,
   billName: PropTypes.string.isRequired
+};
+
+const UPDATE_BILL = gql`
+mutation updateBill($id: ID!, $ds: String, $nm: String, $st: String){
+  updateBill(bid:$id, desc:$ds, name:$nm, status:$st) {
+    bill {
+      id
+    }
+  }
+}
+`;
+
+class UpdateBillComponent extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      show: false,
+      name: this.props.billName,
+      desc: this.props.billDesc,
+      status: this.props.billStatus
+    };
+
+    this.handleShow = this.handleShow.bind(this);
+    this.handleClose = this.handleClose.bind(this);
+    this.handleBillNameChange = this.handleBillNameChange.bind(this);
+    this.handleBillDescChange = this.handleBillDescChange.bind(this);
+    this.handleBillStatusChange = this.handleBillStatusChange.bind(this);
+  }
+
+  getBillNameValidationState() {
+    if (this.state.name === "") {
+      return "error";
+    } else {
+      return "success";
+    }
+  }
+  getBillDescValidationState() {
+    if (this.state.desc === "") {
+      return "error";
+    } else {
+      return "success";
+    }
+  }
+
+  formValid() {
+    return (this.state.name !== "" && this.state.desc !== "");
+  }
+
+  handleShow() {
+    this.setState({ show: true });
+  }
+  handleClose() {
+    this.setState({ show: false });
+  }
+  handleBillNameChange(e) {
+    this.setState({ name: e.target.value });
+  }
+  handleBillDescChange(e) {
+    this.setState({ desc: e.target.value });
+  }
+  handleBillStatusChange(e) {
+    this.setState({ status: e.target.value });
+  }
+
+  genParams() {
+    if (!this.formValid()) {
+      return null;
+    }
+    return {
+      id: this.props.billId,
+      nm: this.state.name,
+      ds: this.state.desc,
+      st: this.state.status
+    };
+  }
+
+  render() {
+    return (
+      <div>
+        <Button className="pull-right" bsStyle="default" bsSize="small" onClick={this.handleShow}>
+          Edit
+        </Button>
+        <Modal show={this.state.show} onHide={this.handleClose}>
+          <Modal.Header closeButton>
+            <Modal.Title>Update Bill</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Mutation mutation={UPDATE_BILL}
+              refetchQueries={({ loading, error, data }) => {
+                if (loading || error) {
+                  return [];
+                }
+                return [{
+                  query: GET_DETAILS,
+                  variables: { id: this.props.billId }
+                }];
+              }}
+              onCompleted={data => {
+                if (data && data.updateBill) {
+                  this.handleClose();
+                }
+              }}
+            >
+              {(updateBill, {loading, error, data}) => {
+                let btnDisabled = false;
+                if (!this.formValid() || loading) {
+                  btnDisabled = true;
+                }
+                return (
+                  <form
+                    onSubmit={e => {
+                      e.preventDefault();
+                      const params = this.genParams();
+                      if (params !== null) {
+                        updateBill({ variables: params });
+                      }
+                    }}
+                  >
+                    <FormGroup
+                      controlId="updateBillName"
+                      validationState={this.getBillNameValidationState()}
+                    >
+                      <ControlLabel>Update bill name here:</ControlLabel>
+                      <FormControl
+                        type="text"
+                        value={this.state.name}
+                        onChange={this.handleBillNameChange}
+                      />
+                    </FormGroup>
+                    <FormGroup
+                      controlId="updateBillDesc"
+                      validationState={this.getBillDescValidationState()}
+                    >
+                      <ControlLabel>Update bill description here:</ControlLabel>
+                      <FormControl
+                        type="text"
+                        value={this.state.desc}
+                        onChange={this.handleBillDescChange}
+                      />
+                    </FormGroup>
+                    <FormGroup controlId="updateBillState">
+                      <ControlLabel>Update bill status:</ControlLabel>
+                      <FormControl
+                        componentClass="select"
+                        value={this.state.status}
+                        onChange={this.handleBillStatusChange}
+                      >
+                        <option value={"OPN"}>Open</option>
+                        <option value={"STL"}>Settled</option>
+                        <option value={"DIS"}>Dispute</option>
+                      </FormControl>
+                      {error && <p>{firstErrorMessage(error)}</p>}
+                    </FormGroup>
+                    <FormGroup controlId="updateBillSubmit">
+                      <Button bsStyle="success" type="submit" disabled={btnDisabled}>Update</Button>
+                    </FormGroup>
+                  </form>
+                );
+              }}
+
+            </Mutation>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button onClick={this.handleClose}>Close</Button>
+          </Modal.Footer>
+        </Modal>
+      </div>
+    );
+  }
+}
+
+UpdateBillComponent.propTypes = {
+  billId: PropTypes.string.isRequired,
+  billName: PropTypes.string.isRequired,
+  billDesc: PropTypes.string.isRequired,
+  billStatus: PropTypes.string.isRequired
 };
