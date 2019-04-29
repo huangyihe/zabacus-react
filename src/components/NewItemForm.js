@@ -48,6 +48,9 @@ const filterAmountInput = (input) => {
   if (parts.length === 2 && parts[1].length >= 3) {
     textValue = `${parts[0]}.${parts[1].substring(0, 2)}`;
   }
+  if (input.includes('-')) {
+    textValue = `-${textValue}`;
+  }
   return textValue;
 };
 
