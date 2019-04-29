@@ -7,7 +7,7 @@
     "apollo-link-context": "^1.0.9",
     "bootstrap": "^3.3.5",
     "graphql": "^14.0.2",
-    "jquery": "^3.3.1",
+    "jquery": "^3.4.0",
     "md5": "^2.2.1",
     "moment": "^2.22.2",
     "popper.js": "^1.14.4",
